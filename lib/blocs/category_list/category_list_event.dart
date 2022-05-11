@@ -7,6 +7,8 @@ abstract class CategoryListEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class GetCategoriesEvent extends CategoryListEvent {}
+
 class AddCategoryEvent extends CategoryListEvent {
   final String title;
   final IconData icon;

@@ -32,7 +32,7 @@ class DB {
   Future<Database> _initializeDb() async {
     Directory d = await getApplicationDocumentsDirectory();
     String p = d.path + dataBaseName;
-
+    //await deleteDatabase(p);
     var db =
         await openDatabase(p, version: dataBaseVersion, onCreate: _createDB);
     return db;
@@ -56,35 +56,31 @@ ${TodoFields.dateTime} INT NOT NULL,
 ${TodoFields.completed} INT NOT NULL)''');
 
     db.transaction((txn) async {
-      // await txn.rawInsert(
-      //   'INSERT INTO initDate(firstDate) VALUES(?)',
-      //   [initDate],
-      // );
       Category personal = const Category(title: 'Personal', icon: Icons.person);
       Category work = const Category(title: 'Work', icon: Icons.work);
       await txn.insert(categoryTableName, personal.toMap());
       await txn.insert(categoryTableName, work.toMap());
-      Todo firstTodo = Todo(
-        categoryId: '1',
-        title: 'Do homework',
-        dateTime: DateTime.now(),
-        description: '',
-      );
-      Todo secondTodo = Todo(
-        categoryId: '1',
-        title: 'Go to Market',
-        dateTime: DateTime.now(),
-        description: 'Buy food',
-      );
-      Todo thirdTodo = Todo(
-        categoryId: '2',
-        title: 'Finish site optimization',
-        dateTime: DateTime.now(),
-        description: 'Do 5 sites optimization',
-      );
-      await txn.insert(todoTableName, firstTodo.toMap());
-      await txn.insert(todoTableName, secondTodo.toMap());
-      await txn.insert(todoTableName, thirdTodo.toMap());
+      // Todo firstTodo = Todo(
+      //   categoryId: '1',
+      //   title: 'Do homework',
+      //   dateTime: DateTime.now(),
+      //   description: '',
+      // );
+      // Todo secondTodo = Todo(
+      //   categoryId: '1',
+      //   title: 'Go to Market',
+      //   dateTime: DateTime.now(),
+      //   description: 'Buy food',
+      // );
+      // Todo thirdTodo = Todo(
+      //   categoryId: '2',
+      //   title: 'Finish site optimization',
+      //   dateTime: DateTime.now(),
+      //   description: 'Do 5 sites optimization',
+      // );
+      // await txn.insert(todoTableName, firstTodo.toMap());
+      // await txn.insert(todoTableName, secondTodo.toMap());
+      // await txn.insert(todoTableName, thirdTodo.toMap());
     });
   }
 }

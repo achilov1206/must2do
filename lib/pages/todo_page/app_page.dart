@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import './calendar_page.dart';
 import './category_page.dart';
-import './settings_page.dart';
 import 'create_task_page.dart';
 
 class AppPage extends StatefulWidget {
@@ -23,7 +22,6 @@ class _AppPageState extends State<AppPage> {
   final _pages = const [
     CategoryPage(),
     CalendarPage(),
-    SettingsPage(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -44,15 +42,16 @@ class _AppPageState extends State<AppPage> {
             icon: Icon(Icons.calendar_month),
             label: 'Celendar',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, CreateTaskPage.routeName);
+          Navigator.pushNamed(
+            context,
+            CreateTaskPage.routeName,
+            arguments: {'isCreatedFromMainPage': true},
+          );
         },
         child: const Icon(Icons.add),
       ),

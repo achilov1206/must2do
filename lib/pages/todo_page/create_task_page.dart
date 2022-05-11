@@ -2,13 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../models/todo_model.dart';
 import '../../widgets/date_selector.dart';
 import '../../blocs/block.dart';
 import '../../widgets/custom_dropdown.dart';
+import './tasks_page.dart';
 
 class CreateTaskPage extends StatefulWidget {
   static const routeName = '/create-task-page';
-  const CreateTaskPage({Key? key}) : super(key: key);
+  // isCreatedFromMainPage false - pop to TasksPage
+  // isCreatedFromMainPage true - pop till main page
+  final bool isCreatedFromMainPage;
+  //if Todo not null edit task
+  //else create new task
+
+  //category id for selecting necessary category in dropdown
+  final String? belongsToCategory;
+  //not null if task edit mode
+  final Todo? todoToEdit;
+  const CreateTaskPage({
+    Key? key,
+    this.isCreatedFromMainPage = true,
+    this.todoToEdit,
+    this.belongsToCategory,
+  }) : super(key: key);
 
   @override
   State<CreateTaskPage> createState() => _CreateTaskPageState();
@@ -16,17 +33,35 @@ class CreateTaskPage extends StatefulWidget {
 
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final _form = GlobalKey<FormState>();
-
+  bool edit = false;
+  int? todoId;
   String? todoTitle;
   String? todoCatId;
   String? todoDesc;
   DateTime? dateTime;
+  bool? isCompleted;
+
+  @override
+  void initState() {
+    if (widget.todoToEdit != null) {
+      edit = true;
+      todoId = widget.todoToEdit!.id;
+      todoTitle = widget.todoToEdit!.title;
+      todoCatId = widget.todoToEdit!.categoryId;
+      todoDesc = widget.todoToEdit!.description;
+      dateTime = widget.todoToEdit!.dateTime;
+      isCompleted = widget.todoToEdit!.completed;
+    } else if (widget.belongsToCategory != null) {
+      todoCatId = widget.belongsToCategory;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create new Task'),
+        title: edit ? const Text('Edit task') : const Text('Create new Task'),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -34,24 +69,44 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 onPressed: () {
                   if (_form.currentState!.validate()) {
                     _form.currentState!.save();
-                    dateTime ??= DateTime.now();
+                    dateTime ??= DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day,
+                    );
                     todoDesc ??= '';
                     FocusScope.of(context).requestFocus(FocusNode());
-                    context.read<TodoListBloc>().add(
-                          AddTodoEvent(
-                            todoTitle: todoTitle!,
-                            todoCatId: todoCatId!,
-                            todoDescription: todoDesc,
-                            dateTime: dateTime!,
-                          ),
-                        );
+                    if (edit) {
+                      context.read<TodoListBloc>().add(
+                            EditTodoEvent(
+                              id: todoId!,
+                              newTitle: todoTitle!,
+                              newCatId: todoCatId!,
+                              newDescription: todoDesc,
+                              newDateTime: dateTime!,
+                              isCompleted: isCompleted!,
+                            ),
+                          );
+                    } else {
+                      context.read<TodoListBloc>().add(
+                            AddTodoEvent(
+                              todoTitle: todoTitle!,
+                              todoCatId: todoCatId!,
+                              todoDescription: todoDesc,
+                              dateTime: dateTime!,
+                            ),
+                          );
+                    }
+
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         duration: const Duration(milliseconds: 700),
                         content: Row(
                           children: [
-                            const Text('New task added'),
+                            edit
+                                ? const Text('Task edited')
+                                : const Text('New task added'),
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
@@ -63,6 +118,26 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       ),
                     );
                     _form.currentState!.reset();
+                    if (widget.isCreatedFromMainPage) {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        TasksPage.routeName,
+                      );
+                    } else {
+                      Navigator.pop(
+                        context,
+                        //Return todo if edit mode
+                        //for updating TaskDetail page
+                        Todo(
+                          id: todoId,
+                          categoryId: todoCatId!,
+                          title: todoTitle!,
+                          dateTime: dateTime!,
+                          description: todoDesc,
+                          completed: isCompleted ?? false,
+                        ),
+                      );
+                    }
                   }
                 },
                 icon: const Icon(
@@ -86,10 +161,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             children: [
               TextFormField(
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                  FilteringTextInputFormatter.allow(
+                    RegExp("[a-zA-Zа-яА-Я /-?!#&%()@]"),
+                  ),
                 ],
                 cursorColor: Colors.green,
-                initialValue: '',
+                initialValue: todoTitle ?? '',
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
@@ -111,10 +188,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               ),
               TextFormField(
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                  FilteringTextInputFormatter.allow(
+                    RegExp("[a-zA-Zа-яА-Я /-?!#&%()@]"),
+                  ),
                 ],
                 cursorColor: Colors.green,
-                initialValue: '',
+                initialValue: todoDesc ?? '',
                 maxLines: 2,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
@@ -144,7 +223,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     builder: (context, state) {
                       return CustomDropdown(
                         itemsList: state.categories,
-                        defaultValue: state.categories[0].id.toString(),
+                        defaultValue:
+                            todoCatId ?? state.categories[0].id.toString(),
                         dropdownHint: 'None',
                         onValueChanged: (String value) {
                           todoCatId = value;
@@ -168,9 +248,13 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ),
                   DatePicker(
                     valueChanged: (value) {
-                      dateTime = value;
+                      dateTime = DateTime(
+                        value.year,
+                        value.month,
+                        value.day,
+                      );
                     },
-                    initialDate: DateTime.now(),
+                    initialDate: dateTime ?? DateTime.now(),
                   ),
                 ],
               ),

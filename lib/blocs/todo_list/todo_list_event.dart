@@ -1,5 +1,7 @@
 part of 'todo_list_bloc.dart';
 
+enum FilteredTodo { all, completed, notCompleted }
+
 abstract class TodoListEvent extends Equatable {
   const TodoListEvent();
 
@@ -7,13 +9,14 @@ abstract class TodoListEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class GetTodos extends TodoListEvent {}
-
-class GetTodo extends TodoListEvent {
-  final Todo todo;
-  const GetTodo({
-    required this.todo,
+class GetTodosEvent extends TodoListEvent {
+  final String? catId;
+  const GetTodosEvent({
+    this.catId,
   });
+
+  @override
+  String toString() => 'GetTodosEvent(catId: $catId)';
 }
 
 class AddTodoEvent extends TodoListEvent {
@@ -43,12 +46,15 @@ class EditTodoEvent extends TodoListEvent {
   final String newCatId;
   final String? newDescription;
   final DateTime newDateTime;
+  final bool isCompleted;
+
   const EditTodoEvent({
     required this.id,
     required this.newTitle,
     required this.newCatId,
     this.newDescription,
     required this.newDateTime,
+    required this.isCompleted,
   });
 
   @override
@@ -71,6 +77,17 @@ class ToggleTodoEvent extends TodoListEvent {
 
   @override
   List<Object> get props => [todo];
+}
+
+class CountCompetedTaskByCategory extends TodoListEvent {
+  final String catId;
+  const CountCompetedTaskByCategory({required this.catId});
+
+  @override
+  String toString() => 'CountCompetedTaskByCategory(catId: $catId)';
+
+  @override
+  List<Object> get props => [catId];
 }
 
 class RemoveTodoEvent extends TodoListEvent {

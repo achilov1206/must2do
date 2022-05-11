@@ -2,7 +2,9 @@ import '../models/category_dao.dart';
 import '../models/category_model.dart';
 
 class CategoryRepository {
-  final catDao = CategoryDao();
+  final CategoryDao catDao;
+
+  const CategoryRepository({required this.catDao});
 
   Future<int> insertCategory(Category category) {
     return catDao.insertCategory(category);
@@ -12,8 +14,9 @@ class CategoryRepository {
     return catDao.getCategory(id);
   }
 
-  Stream<List> getCategories() {
-    return Stream.fromFuture(catDao.getCategories());
+  Future<List> getCategories() async {
+    List categories = await catDao.getCategories();
+    return categories;
   }
 
   Future<int> deleteCategory(int id) {

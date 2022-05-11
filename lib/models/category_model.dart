@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 //Name for DataBase Table
 const String categoryTableName = 'category';
@@ -24,7 +25,7 @@ class Category extends Equatable {
   const Category({
     this.id,
     required this.title,
-    required this.icon,
+    this.icon = Icons.category,
   });
 
   @override
@@ -51,6 +52,9 @@ class Category extends Equatable {
       title: map[CategoryFields.title],
       icon: icon,
     );
+  }
+  factory Category.initialCategory() {
+    return const Category(title: '');
   }
 
   String toJson() => json.encode(toMap());

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
 
-enum Filter {
-  all,
-  active,
-  completed,
-}
+// enum Filter {
+//   all,
+//   active,
+//   completed,
+// }
 
 const String todoTableName = 'todo';
 
@@ -74,6 +74,15 @@ class Todo extends Equatable {
       description: map[TodoFields.description] ?? '',
       dateTime: DateTime.fromMillisecondsSinceEpoch(map[TodoFields.dateTime]),
       completed: map[TodoFields.completed] == 0 ? false : true,
+    );
+  }
+
+  factory Todo.initialTodo() {
+    return Todo(
+      categoryId: '-1',
+      title: '',
+      description: '',
+      dateTime: DateTime(1980),
     );
   }
 
