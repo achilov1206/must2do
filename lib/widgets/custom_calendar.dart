@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:collection';
 import '../models/todo_model.dart';
-import '../repositories/todo_repository.dart';
 import '../blocs/block.dart';
 import './todo_item.dart';
 
@@ -33,7 +32,11 @@ class _CustomCalendarState extends State<CustomCalendar> {
   CalendarFormat _calendarFormat = CalendarFormat.twoWeeks;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOff; // Can be toggled on/off by longpressing a date
-  DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
@@ -44,8 +47,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
     _selectedDay = _focusedDay;
   }
 
-  Future<void> fetchHashTodosMap() async {
-    _linkedHashTodos = await context.read<CalendarTodoCubit>().getTodos();
+  LinkedHashMap fetchHashTodosMap(Map<DateTime, List<Todo>> todos) {
+    return LinkedHashMap<DateTime, List<Todo>>(
+      equals: isSameDay,
+    )..addAll(todos);
   }
 
   @override
@@ -111,93 +116,92 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: fetchHashTodosMap(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    return BlocBuilder<TodoListBloc, TodoListState>(
+      builder: (context, state) {
+        if (state.todoListStatus == TodoListStatus.loading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(
-                'Something gone wrong\nPlease update page ${snapshot.error}'),
+        } else if (state.todoListStatus == TodoListStatus.error) {
+          return const Center(
+            child: Text('Something gone wrong\nPlease update page'),
           );
         } else {
-          return BlocBuilder<CalendarTodoCubit, CalendarTodoState>(
-            builder: (context, state) {
-              _selectedTasks = _getTasksForDay(state.dateTime);
-              return Column(
-                children: [
-                  TableCalendar<Todo>(
-                    firstDay: DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month - 12,
-                      DateTime.now().day,
-                    ),
-                    lastDay: DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month + 12,
-                      DateTime.now().day,
-                    ),
-                    focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) =>
-                        isSameDay(state.dateTime, day),
-                    rangeStartDay: _rangeStart,
-                    rangeEndDay: _rangeEnd,
-                    calendarFormat: _calendarFormat,
-                    rangeSelectionMode: _rangeSelectionMode,
-                    eventLoader: (DateTime day) => _getTasksForDay(day),
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    calendarStyle: const CalendarStyle(
-                      outsideDaysVisible: true,
-                    ),
-                    onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-                      context
-                          .read<CalendarTodoCubit>()
-                          .setDateTime(selectedDay);
-                      return _onDaySelected(
-                        selectedDay: selectedDay,
-                        focusedDay: focusedDay,
-                      );
-                    },
-                    onRangeSelected:
-                        (DateTime? start, DateTime? end, DateTime focusedDay) =>
-                            _onRangeSelected(
-                      start: start,
-                      end: end,
-                      focusedDay: focusedDay,
-                    ),
-                    onFormatChanged: (format) {
-                      if (_calendarFormat != format) {
-                        setState(() {
-                          _calendarFormat = format;
-                        });
-                      }
-                    },
-                    onPageChanged: (focusedDay) {
-                      _focusedDay = focusedDay;
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _selectedTasks.length,
-                      itemBuilder: (context, index) {
-                        //return TodoItem(todo: _selectedTasks[index]);
-                        return Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: ListTile(
-                            title: Text(_selectedTasks[index].title),
-                            shape: Border.all(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
+          context.read<TodoListBloc>().add(const GetTodosEvent());
+          _linkedHashTodos = fetchHashTodosMap(state.todos);
+          _selectedTasks = _getTasksForDay(_selectedDay!);
+          return Column(
+            children: [
+              TableCalendar<Todo>(
+                // calendarBuilders: CalendarBuilders(
+                //   singleMarkerBuilder: (context, date, _) {
+                //     return Container(
+                //       decoration: BoxDecoration(
+                //         shape: BoxShape.circle,
+                //         color:
+                //             date == _selectedDay ? Colors.white : Colors.black,
+                //       ), //Change color
+                //       width: 5.0,
+                //       height: 5.0,
+                //       margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                //     );
+                //   },
+                // ),
+                firstDay: DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month - 12,
+                  DateTime.now().day,
+                ),
+                lastDay: DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month + 12,
+                  DateTime.now().day,
+                ),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                rangeStartDay: _rangeStart,
+                rangeEndDay: _rangeEnd,
+                calendarFormat: _calendarFormat,
+                rangeSelectionMode: _rangeSelectionMode,
+                eventLoader: (DateTime day) => _getTasksForDay(day),
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                calendarStyle: const CalendarStyle(
+                  outsideDaysVisible: true,
+                ),
+                onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                  return _onDaySelected(
+                    selectedDay: selectedDay,
+                    focusedDay: focusedDay,
+                  );
+                },
+                onRangeSelected:
+                    (DateTime? start, DateTime? end, DateTime focusedDay) =>
+                        _onRangeSelected(
+                  start: start,
+                  end: end,
+                  focusedDay: focusedDay,
+                ),
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
+              ),
+              const SizedBox(height: 8.0),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _selectedTasks.length,
+                  itemBuilder: (context, index) {
+                    return TodoItem(todo: _selectedTasks[index]);
+                  },
+                ),
+              ),
+            ],
           );
         }
       },

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../repositories/todo_repository.dart';
-
+import 'package:responsive_grid/responsive_grid.dart';
 import './create_category_page.dart';
 import './tasks_page.dart';
 import '../../utils/error_dialog.dart';
@@ -38,26 +37,38 @@ class CategoryPage extends StatelessWidget {
                 errorDialog(context, state.error);
               }
               context.watch<CategoryListBloc>().add(GetCategoriesEvent());
-              return Wrap(
-                spacing: 10,
-                runSpacing: 10,
+              return ResponsiveGridRow(
+                // spacing: 10,
+                // runSpacing: 10,
                 children: [
-                  const CatgoryCard(
-                    Category(title: 'All tasks', icon: Icons.list),
-                    routeName: TasksPage.routeName,
+                  ResponsiveGridCol(
+                    xs: 6,
+                    md: 3,
+                    child: const CatgoryCard(
+                      Category(title: 'All tasks', icon: Icons.list),
+                      routeName: TasksPage.routeName,
+                    ),
                   ),
                   ...state.categories.map((Category cat) {
-                    return CatgoryCard(
-                      cat,
-                      routeName: TasksPage.routeName,
-                      byCategoryId: true,
+                    return ResponsiveGridCol(
+                      xs: 6,
+                      md: 3,
+                      child: CatgoryCard(
+                        cat,
+                        routeName: TasksPage.routeName,
+                        byCategoryId: true,
+                      ),
                     );
                   }),
-                  const CatgoryCard(
-                    Category(title: 'Add List', icon: Icons.add),
-                    iconColor: Colors.green,
-                    titleColor: Colors.black,
-                    routeName: CreateCategoryPage.routeName,
+                  ResponsiveGridCol(
+                    xs: 6,
+                    md: 3,
+                    child: const CatgoryCard(
+                      Category(title: 'Add List', icon: Icons.add),
+                      iconColor: Colors.green,
+                      titleColor: Colors.black,
+                      routeName: CreateCategoryPage.routeName,
+                    ),
                   ),
                 ],
               );

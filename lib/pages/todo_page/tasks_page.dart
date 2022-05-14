@@ -92,15 +92,16 @@ class TasksPage extends StatelessWidget {
                 // change dateTimeLabel to today and tomorrow
                 state.todos.forEach((key, todos) {
                   String dateLabel;
-                  if (key == DateFormat("dd-MMM").format(DateTime.now())) {
+                  String sKey = DateFormat("dd-MMM").format(key);
+                  if (sKey == DateFormat("dd-MMM").format(DateTime.now())) {
                     dateLabel = 'Today';
-                  } else if (key ==
+                  } else if (sKey ==
                       DateFormat("dd-MMM").format(DateTime.now().add(
                         const Duration(days: 1),
                       ))) {
                     dateLabel = 'Tomorrow';
                   } else {
-                    dateLabel = key;
+                    dateLabel = sKey;
                   }
                   _widgetsList.add(listSectionSeparator(
                     context,

@@ -47,11 +47,6 @@ class MyApp extends StatelessWidget {
               todoRepository: context.read<TodoRepository>(),
             ),
           ),
-          BlocProvider<CalendarTodoCubit>(
-            create: (context) => CalendarTodoCubit(
-              todoRepository: context.read<TodoRepository>(),
-            ),
-          ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

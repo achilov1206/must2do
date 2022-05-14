@@ -3,7 +3,7 @@ part of 'todo_list_bloc.dart';
 enum TodoListStatus { initial, loading, loaded, empty, error }
 
 class TodoListState extends Equatable {
-  final Map<String, List<Todo>> todos;
+  final Map<DateTime, List<Todo>> todos;
   final TodoListStatus todoListStatus;
   final CustomError error;
   const TodoListState({
@@ -28,7 +28,7 @@ class TodoListState extends Equatable {
       'TodoListState(todos: $todos, todoListStatus: $todoListStatus, error: $error)';
 
   TodoListState copyWith({
-    Map<String, List<Todo>>? todos,
+    Map<DateTime, List<Todo>>? todos,
     TodoListStatus? todoListStatus,
     CustomError? error,
   }) {

@@ -1,7 +1,8 @@
+import 'dart:collection';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:intl/intl.dart';
-
+import 'package:table_calendar/src/shared/utils.dart' as t_calendar;
 import '../../models/todo_model.dart';
 import '../../models/custom_error.dart';
 import '../../repositories/todo_repository.dart';
@@ -80,14 +81,13 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
       }
 
       //conver todos list to Map = {'date': [Todos()...],...}
-      Map<String, List<Todo>> todosMap = {};
+      Map<DateTime, List<Todo>> todosMap = {};
       for (Todo todo in todosData) {
-        String dateLabel = DateFormat("dd-MMM").format(todo.dateTime);
-        if (todosMap.containsKey(dateLabel)) {
-          todosMap[dateLabel]!.add(todo);
+        if (todosMap.containsKey(todo.dateTime)) {
+          todosMap[todo.dateTime]!.add(todo);
         } else {
           todosMap.addAll({
-            dateLabel: [todo]
+            todo.dateTime: [todo]
           });
         }
       }
