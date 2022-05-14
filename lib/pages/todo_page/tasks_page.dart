@@ -19,9 +19,10 @@ class TasksPage extends StatelessWidget {
   Widget build(BuildContext context) {
     //
     String title = 'All Fresh Tasks';
-
-    if (args != null) {
-      title = args['cat'].title;
+    String belongsToCategory = '';
+    if (args != null && !args.isEmpty) {
+      title = args['cat'].title!;
+      belongsToCategory = args['cat'].id.toString();
     }
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +54,7 @@ class TasksPage extends StatelessWidget {
                 List<Widget> _widgetsList = [];
                 //Get tasks by Categories if args not null
                 //else get all not new tasks
-                if (args != null) {
+                if (args != null && !args.isEmpty) {
                   context
                       .read<TodoListBloc>()
                       .add(GetTodosEvent(catId: args['cat'].id.toString()));
@@ -80,6 +81,7 @@ class TasksPage extends StatelessWidget {
                           // isCreatedFromMainPage true - pop till main page
                           arguments: {
                             'isCreatedFromMainPage': false,
+                            'belongsToCategory': belongsToCategory,
                             //'belongsToCategory': '',
                           },
                         );
@@ -100,7 +102,11 @@ class TasksPage extends StatelessWidget {
                   } else {
                     dateLabel = key;
                   }
-                  _widgetsList.add(listSectionSeparator(context, dateLabel));
+                  _widgetsList.add(listSectionSeparator(
+                    context,
+                    dateLabel,
+                    belongsToCategory,
+                  ));
                   for (Todo todo in todos) {
                     _widgetsList.add(TodoItem(todo: todo));
                   }
@@ -119,7 +125,8 @@ class TasksPage extends StatelessWidget {
   }
 
   //Separator for Tasks list with date label
-  Widget listSectionSeparator(BuildContext context, String dateLabel) {
+  Widget listSectionSeparator(
+      BuildContext context, String dateLabel, String belongsToCategory) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -138,7 +145,10 @@ class TasksPage extends StatelessWidget {
               CreateTaskPage.routeName,
               // isCreatedFromMainPage false - pop to TasksPage
               // isCreatedFromMainPage true - pop till main page
-              arguments: {'isCreatedFromMainPage': false},
+              arguments: {
+                'isCreatedFromMainPage': false,
+                'belongsToCategory': belongsToCategory,
+              },
             );
           },
           icon: const Icon(

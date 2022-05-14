@@ -25,11 +25,13 @@ class _CustomDropdownState extends State<CustomDropdown> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
+      height: 50,
       width: 150,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      //padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       color: Theme.of(context).scaffoldBackgroundColor,
       child: DropdownButtonFormField<String>(
+        elevation: 0,
+        alignment: AlignmentDirectional.topCenter,
         decoration: const InputDecoration(border: InputBorder.none),
         icon: const Icon(
           Icons.arrow_downward,

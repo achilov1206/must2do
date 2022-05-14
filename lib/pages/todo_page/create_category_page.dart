@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 import '../../blocs/block.dart';
+import '../../models/category_model.dart';
 
 class CreateCategoryPage extends StatefulWidget {
   static const routeName = '/create-category-page';
-  const CreateCategoryPage({Key? key}) : super(key: key);
+  final Category? category;
+  const CreateCategoryPage({Key? key, this.category}) : super(key: key);
 
   @override
   State<CreateCategoryPage> createState() => _CreateCategoryPageState();
@@ -15,6 +17,7 @@ class CreateCategoryPage extends StatefulWidget {
 
 class _CreateCategoryPageState extends State<CreateCategoryPage> {
   final _form = GlobalKey<FormState>();
+  bool _edit = false;
   String? _catTitle;
   IconData? _catIcon;
 
@@ -29,10 +32,22 @@ class _CreateCategoryPageState extends State<CreateCategoryPage> {
   }
 
   @override
+  void initState() {
+    if (widget.category != null) {
+      _edit = true;
+      _catTitle = widget.category!.title;
+      _catIcon = widget.category!.icon;
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create new Category'),
+        title: _edit
+            ? const Text('Edit Category')
+            : const Text('Create new Category'),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -41,19 +56,32 @@ class _CreateCategoryPageState extends State<CreateCategoryPage> {
                   if (_form.currentState!.validate()) {
                     _form.currentState!.save();
                     FocusScope.of(context).requestFocus(FocusNode());
-                    context.read<CategoryListBloc>().add(
-                          AddCategoryEvent(
-                            title: _catTitle!,
-                            icon: _catIcon ?? Icons.circle,
-                          ),
-                        );
+                    if (_edit) {
+                      print('Edit: $_edit');
+                      context.read<CategoryListBloc>().add(
+                            EditCategoryEvent(
+                              id: widget.category!.id!,
+                              title: _catTitle!,
+                              icon: _catIcon!,
+                            ),
+                          );
+                    } else {
+                      context.read<CategoryListBloc>().add(
+                            AddCategoryEvent(
+                              title: _catTitle!,
+                              icon: _catIcon ?? Icons.circle,
+                            ),
+                          );
+                    }
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         duration: const Duration(milliseconds: 700),
                         content: Row(
                           children: [
-                            const Text('New task added'),
+                            _edit
+                                ? const Text('Task edited')
+                                : const Text('New task added'),
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
@@ -101,7 +129,7 @@ class _CreateCategoryPageState extends State<CreateCategoryPage> {
                       RegExp("[0-9a-zA-Z /-?!#&%()]")),
                 ],
                 cursorColor: Colors.green,
-                initialValue: '',
+                initialValue: _catTitle ?? '',
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),

@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:collection';
 import '../models/todo_model.dart';
+import '../repositories/todo_repository.dart';
 import '../blocs/block.dart';
 import './todo_item.dart';
 
@@ -120,85 +119,83 @@ class _CustomCalendarState extends State<CustomCalendar> {
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
-          return const Center(
-            child: Text('Something gone wrong\nPlease update page'),
+          return Center(
+            child: Text(
+                'Something gone wrong\nPlease update page ${snapshot.error}'),
           );
         } else {
-          return BlocConsumer<TodoListBloc, TodoListState>(
-            listener: (context, state) {
-              //print(state.todos);
-              _selectedTasks = _getTasksForDay(
-                  context.watch<CalendarTodoCubit>().state.dateTime);
-            },
+          return BlocBuilder<CalendarTodoCubit, CalendarTodoState>(
             builder: (context, state) {
-              return BlocBuilder<CalendarTodoCubit, CalendarTodoState>(
-                builder: (context, state) {
-                  _selectedTasks = _getTasksForDay(state.dateTime);
-                  return Column(
-                    children: [
-                      TableCalendar<Todo>(
-                        firstDay: DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month - 12,
-                          DateTime.now().day,
-                        ),
-                        lastDay: DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month + 12,
-                          DateTime.now().day,
-                        ),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) =>
-                            isSameDay(state.dateTime, day),
-                        rangeStartDay: _rangeStart,
-                        rangeEndDay: _rangeEnd,
-                        calendarFormat: _calendarFormat,
-                        rangeSelectionMode: _rangeSelectionMode,
-                        eventLoader: (DateTime day) => _getTasksForDay(day),
-                        startingDayOfWeek: StartingDayOfWeek.monday,
-                        calendarStyle: const CalendarStyle(
-                          outsideDaysVisible: true,
-                        ),
-                        onDaySelected:
-                            (DateTime selectedDay, DateTime focusedDay) {
-                          context
-                              .read<CalendarTodoCubit>()
-                              .setDateTime(selectedDay);
-                          return _onDaySelected(
-                            selectedDay: selectedDay,
-                            focusedDay: focusedDay,
-                          );
-                        },
-                        onRangeSelected: (DateTime? start, DateTime? end,
-                                DateTime focusedDay) =>
+              _selectedTasks = _getTasksForDay(state.dateTime);
+              return Column(
+                children: [
+                  TableCalendar<Todo>(
+                    firstDay: DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month - 12,
+                      DateTime.now().day,
+                    ),
+                    lastDay: DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month + 12,
+                      DateTime.now().day,
+                    ),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) =>
+                        isSameDay(state.dateTime, day),
+                    rangeStartDay: _rangeStart,
+                    rangeEndDay: _rangeEnd,
+                    calendarFormat: _calendarFormat,
+                    rangeSelectionMode: _rangeSelectionMode,
+                    eventLoader: (DateTime day) => _getTasksForDay(day),
+                    startingDayOfWeek: StartingDayOfWeek.monday,
+                    calendarStyle: const CalendarStyle(
+                      outsideDaysVisible: true,
+                    ),
+                    onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                      context
+                          .read<CalendarTodoCubit>()
+                          .setDateTime(selectedDay);
+                      return _onDaySelected(
+                        selectedDay: selectedDay,
+                        focusedDay: focusedDay,
+                      );
+                    },
+                    onRangeSelected:
+                        (DateTime? start, DateTime? end, DateTime focusedDay) =>
                             _onRangeSelected(
-                          start: start,
-                          end: end,
-                          focusedDay: focusedDay,
-                        ),
-                        onFormatChanged: (format) {
-                          if (_calendarFormat != format) {
-                            setState(() {
-                              _calendarFormat = format;
-                            });
-                          }
-                        },
-                        onPageChanged: (focusedDay) {
-                          _focusedDay = focusedDay;
-                        },
-                      ),
-                      const SizedBox(height: 8.0),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _selectedTasks.length,
-                          itemBuilder: (context, index) {
-                            return TodoItem(todo: _selectedTasks[index]);
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                      start: start,
+                      end: end,
+                      focusedDay: focusedDay,
+                    ),
+                    onFormatChanged: (format) {
+                      if (_calendarFormat != format) {
+                        setState(() {
+                          _calendarFormat = format;
+                        });
+                      }
+                    },
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _selectedTasks.length,
+                      itemBuilder: (context, index) {
+                        //return TodoItem(todo: _selectedTasks[index]);
+                        return Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: ListTile(
+                            title: Text(_selectedTasks[index].title),
+                            shape: Border.all(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               );
             },
           );

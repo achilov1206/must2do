@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
                   builder: (context) => CreateTaskPage(
                     isCreatedFromMainPage: arguments['isCreatedFromMainPage'],
                     todoToEdit: arguments['todo'],
+                    belongsToCategory: arguments['belongsToCategory'],
                   ),
                   fullscreenDialog: true,
                 );
@@ -79,8 +80,11 @@ class MyApp extends StatelessWidget {
                   builder: (context) => TasksPage(args: args),
                 );
               case CreateCategoryPage.routeName:
+                final arguments = settings.arguments as Map<dynamic, dynamic>;
                 return MaterialPageRoute(
-                  builder: (context) => const CreateCategoryPage(),
+                  builder: (context) => CreateCategoryPage(
+                    category: arguments['category'],
+                  ),
                   fullscreenDialog: true,
                 );
               case TaskDetail.routeName:

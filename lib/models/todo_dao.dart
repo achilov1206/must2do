@@ -161,6 +161,25 @@ class TodoDao {
     }
   }
 
+  //Delete Todo by id
+  Future<int> deleteTodosWhereCatId(String id) async {
+    try {
+      final dbProvider = await dataBase.db;
+      int r = await dbProvider.delete(
+        todoTableName,
+        where: '${TodoFields.categoryId} = ?',
+        whereArgs: [id],
+      );
+      return r;
+    } catch (e) {
+      throw CustomError(
+        code: 'Exception',
+        message: e.toString(),
+        plugin: 'deleteTodoWhereCatId/deleteTodo',
+      );
+    }
+  }
+
   //Update Todo
   Future<int> updateTodo(Todo todo) async {
     try {

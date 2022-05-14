@@ -73,9 +73,15 @@ class _TaskDetailState extends State<TaskDetail> {
                     label: 'Belongs to',
                     text: cat.title,
                   );
-                } else {
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
+                  );
+                } else {
+                  return showDetailInfo(
+                    label: 'Note',
+                    text: 'Category more likely deleted',
                   );
                 }
               },

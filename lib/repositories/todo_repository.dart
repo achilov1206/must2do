@@ -37,6 +37,10 @@ class TodoRepository {
     return todoDao.deleteTodo(id);
   }
 
+  Future<int> deleteTodosWhereCatId(String id) {
+    return todoDao.deleteTodosWhereCatId(id);
+  }
+
   Future<int> editTodo(Todo todo) {
     return todoDao.updateTodo(todo);
   }

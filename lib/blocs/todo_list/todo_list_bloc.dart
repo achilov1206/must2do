@@ -55,6 +55,11 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
       todoRepository.deleteTodo(event.todo.id!);
       add(const GetTodosEvent());
     });
+    on<RemoveTodosWhereByCatIdEvent>(((event, emit) {
+      emit(state.copyWith(todoListStatus: TodoListStatus.loading));
+      todoRepository.deleteTodosWhereCatId(event.id);
+      add(const GetTodosEvent());
+    }));
   }
 
   Future<void> getTodos(event, emit) async {

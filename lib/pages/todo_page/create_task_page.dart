@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../models/category_model.dart';
 import '../../models/todo_model.dart';
 import '../../widgets/date_selector.dart';
 import '../../blocs/block.dart';
@@ -22,8 +23,11 @@ class CreateTaskPage extends StatefulWidget {
   final Todo? todoToEdit;
   const CreateTaskPage({
     Key? key,
+    //pop to main page if true;
     this.isCreatedFromMainPage = true,
+    //Edit existing task if [todoToEdit] not null
     this.todoToEdit,
+    //Select Category accordingly
     this.belongsToCategory,
   }) : super(key: key);
 
@@ -221,10 +225,21 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ),
                   BlocBuilder<CategoryListBloc, CategoryListState>(
                     builder: (context, state) {
+                      bool isCategoryExist = false;
+                      if (todoCatId != null) {
+                        for (Category cat in state.categories) {
+                          if (cat.id.toString() == todoCatId) {
+                            isCategoryExist = true;
+                          } else {
+                            isCategoryExist = false;
+                          }
+                        }
+                      }
                       return CustomDropdown(
                         itemsList: state.categories,
-                        defaultValue:
-                            todoCatId ?? state.categories[0].id.toString(),
+                        defaultValue: isCategoryExist == false
+                            ? state.categories[0].id.toString()
+                            : todoCatId,
                         dropdownHint: 'None',
                         onValueChanged: (String value) {
                           todoCatId = value;

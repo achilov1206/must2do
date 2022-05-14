@@ -102,3 +102,16 @@ class RemoveTodoEvent extends TodoListEvent {
   @override
   List<Object> get props => [todo];
 }
+
+class RemoveTodosWhereByCatIdEvent extends TodoListEvent {
+  final String id;
+  const RemoveTodosWhereByCatIdEvent({
+    required this.id,
+  });
+
+  @override
+  String toString() => 'RemoveTodosWhereCatID(id: $id)';
+
+  @override
+  List<Object> get props => [id];
+}
