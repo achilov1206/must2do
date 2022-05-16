@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:must2do/models/custom_error.dart';
-
+import '../../models/custom_error.dart';
 import '../../models/category_model.dart';
 import '../../repositories/category_repository.dart';
 

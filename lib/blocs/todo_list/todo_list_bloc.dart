@@ -1,8 +1,5 @@
-import 'dart:collection';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:table_calendar/src/shared/utils.dart' as t_calendar;
 import '../../models/todo_model.dart';
 import '../../models/custom_error.dart';
 import '../../repositories/todo_repository.dart';
@@ -70,12 +67,7 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
       // get new todos for all categories if cat id is not given
       // else get todos by catId for given category
       if (event.catId == null) {
-        DateTime _dt = DateTime.now();
-        todosData = await todoRepository.getTodosTillDate(DateTime(
-          _dt.year,
-          _dt.month,
-          _dt.day,
-        ));
+        todosData = await todoRepository.getTodos();
       } else {
         todosData = await todoRepository.getTodosByCategoryId(event.catId);
       }

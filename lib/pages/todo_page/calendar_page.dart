@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 import '../../widgets/custom_calendar.dart';
 
 class CalendarPage extends StatelessWidget {
@@ -12,7 +11,7 @@ class CalendarPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Tasks on Calendar'),
       ),
-      body: CustomCalendar(),
+      body: const CustomCalendar(),
     );
   }
 }

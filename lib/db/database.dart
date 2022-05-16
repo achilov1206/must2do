@@ -60,27 +60,6 @@ ${TodoFields.completed} INT NOT NULL)''');
       Category work = const Category(title: 'Work', icon: Icons.work);
       await txn.insert(categoryTableName, personal.toMap());
       await txn.insert(categoryTableName, work.toMap());
-      // Todo firstTodo = Todo(
-      //   categoryId: '1',
-      //   title: 'Do homework',
-      //   dateTime: DateTime.now(),
-      //   description: '',
-      // );
-      // Todo secondTodo = Todo(
-      //   categoryId: '1',
-      //   title: 'Go to Market',
-      //   dateTime: DateTime.now(),
-      //   description: 'Buy food',
-      // );
-      // Todo thirdTodo = Todo(
-      //   categoryId: '2',
-      //   title: 'Finish site optimization',
-      //   dateTime: DateTime.now(),
-      //   description: 'Do 5 sites optimization',
-      // );
-      // await txn.insert(todoTableName, firstTodo.toMap());
-      // await txn.insert(todoTableName, secondTodo.toMap());
-      // await txn.insert(todoTableName, thirdTodo.toMap());
     });
   }
 }

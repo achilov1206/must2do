@@ -51,6 +51,7 @@ class TasksPage extends StatelessWidget {
           children: [
             BlocBuilder<TodoListBloc, TodoListState>(
               builder: (context, state) {
+                print(state.todoListStatus);
                 List<Widget> _widgetsList = [];
                 //Get tasks by Categories if args not null
                 //else get all not new tasks
@@ -61,7 +62,6 @@ class TasksPage extends StatelessWidget {
                 } else {
                   context.read<TodoListBloc>().add(const GetTodosEvent());
                 }
-
                 if (state.todoListStatus == TodoListStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state.todoListStatus == TodoListStatus.error) {

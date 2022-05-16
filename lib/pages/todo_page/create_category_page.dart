@@ -57,7 +57,6 @@ class _CreateCategoryPageState extends State<CreateCategoryPage> {
                     _form.currentState!.save();
                     FocusScope.of(context).requestFocus(FocusNode());
                     if (_edit) {
-                      print('Edit: $_edit');
                       context.read<CategoryListBloc>().add(
                             EditCategoryEvent(
                               id: widget.category!.id!,

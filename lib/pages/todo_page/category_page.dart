@@ -29,37 +29,32 @@ class CategoryPage extends StatelessWidget {
           alignment: Alignment.topCenter,
           child: BlocBuilder<CategoryListBloc, CategoryListState>(
             builder: (context, state) {
-              if (state.categoryListStatus == CategoryListStatus.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (state.categoryListStatus == CategoryListStatus.error) {
+              if (state.categoryListStatus == CategoryListStatus.error) {
                 errorDialog(context, state.error);
               }
               context.watch<CategoryListBloc>().add(GetCategoriesEvent());
               return ResponsiveGridRow(
-                // spacing: 10,
-                // runSpacing: 10,
                 children: [
                   ResponsiveGridCol(
                     xs: 6,
                     md: 3,
                     child: const CatgoryCard(
-                      Category(title: 'All tasks', icon: Icons.list),
+                      Category(title: 'New tasks', icon: Icons.list),
                       routeName: TasksPage.routeName,
                     ),
                   ),
-                  ...state.categories.map((Category cat) {
-                    return ResponsiveGridCol(
-                      xs: 6,
-                      md: 3,
-                      child: CatgoryCard(
-                        cat,
-                        routeName: TasksPage.routeName,
-                        byCategoryId: true,
-                      ),
-                    );
-                  }),
+                  if (state.categories.isNotEmpty)
+                    ...state.categories.map((Category cat) {
+                      return ResponsiveGridCol(
+                        xs: 6,
+                        md: 3,
+                        child: CatgoryCard(
+                          cat,
+                          routeName: TasksPage.routeName,
+                          byCategoryId: true,
+                        ),
+                      );
+                    }),
                   ResponsiveGridCol(
                     xs: 6,
                     md: 3,

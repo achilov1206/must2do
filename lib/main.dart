@@ -11,8 +11,8 @@ import './pages/todo_page/task_detail.dart';
 import './models/category_dao.dart';
 import './models/todo_dao.dart';
 import './models/todo_model.dart';
-import 'repositories/category_repository.dart';
-import 'repositories/todo_repository.dart';
+import './repositories/category_repository.dart';
+import './repositories/todo_repository.dart';
 
 void main() {
   runApp(const MyApp());

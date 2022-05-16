@@ -91,27 +91,61 @@ class _CustomCalendarState extends State<CustomCalendar> {
     }
   }
 
-  void _onRangeSelected({
-    DateTime? start,
-    DateTime? end,
-    required DateTime focusedDay,
-  }) {
-    setState(() {
-      _selectedDay = null;
-      _focusedDay = focusedDay;
-      _rangeStart = start;
-      _rangeEnd = end;
-      _rangeSelectionMode = RangeSelectionMode.toggledOn;
-    });
+  // void _onRangeSelected({
+  //   DateTime? start,
+  //   DateTime? end,
+  //   required DateTime focusedDay,
+  // }) {
+  //   setState(() {
+  //     _selectedDay = null;
+  //     _focusedDay = focusedDay;
+  //     _rangeStart = start;
+  //     _rangeEnd = end;
+  //     _rangeSelectionMode = RangeSelectionMode.toggledOn;
+  //   });
 
-    // `start` or `end` could be null
-    if (start != null && end != null) {
-      _selectedTasks = _getTasksForRange(start: start, end: end);
-    } else if (start != null) {
-      _selectedTasks = _getTasksForDay(start);
-    } else if (end != null) {
-      _selectedTasks = _getTasksForDay(end);
-    }
+  //   // `start` or `end` could be null
+  //   if (start != null && end != null) {
+  //     _selectedTasks = _getTasksForRange(start: start, end: end);
+  //   } else if (start != null) {
+  //     _selectedTasks = _getTasksForDay(start);
+  //   } else if (end != null) {
+  //     _selectedTasks = _getTasksForDay(end);
+  //   }
+  // }
+
+  Widget _buildEventsMarkerNum(List events) {
+    return buildCalendarDayMarker(
+      text: '${events.length}',
+      // backColor: privateLength == 0
+      //     ? DaisyColors.main0Color
+      //     : DaisyColors.serveColor);
+      backColor: Colors.green,
+    );
+  }
+
+  AnimatedContainer buildCalendarDayMarker({
+    @required String? text,
+    @required Color? backColor,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: backColor,
+      ),
+      width: 52,
+      height: 13,
+      child: Center(
+        child: Text(
+          text!,
+          style: const TextStyle().copyWith(
+            color: Colors.white,
+            fontSize: 10.0,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -129,24 +163,60 @@ class _CustomCalendarState extends State<CustomCalendar> {
         } else {
           context.read<TodoListBloc>().add(const GetTodosEvent());
           _linkedHashTodos = fetchHashTodosMap(state.todos);
-          _selectedTasks = _getTasksForDay(_selectedDay!);
+          if (_selectedDay != null) {
+            _selectedTasks = _getTasksForDay(_selectedDay!);
+          }
           return Column(
             children: [
               TableCalendar<Todo>(
-                // calendarBuilders: CalendarBuilders(
-                //   singleMarkerBuilder: (context, date, _) {
-                //     return Container(
-                //       decoration: BoxDecoration(
-                //         shape: BoxShape.circle,
-                //         color:
-                //             date == _selectedDay ? Colors.white : Colors.black,
-                //       ), //Change color
-                //       width: 5.0,
-                //       height: 5.0,
-                //       margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                //     );
-                //   },
-                // ),
+                calendarBuilders: CalendarBuilders(
+                    selectedBuilder: (context, date, events) => Container(
+                          margin: const EdgeInsets.all(4.0),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Text(
+                            date.day.toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                    todayBuilder: (context, date, events) => Container(
+                          margin: const EdgeInsets.all(4.0),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Text(
+                            date.day.toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                    markerBuilder: (context, date, events) {
+                      int quantity = _getTasksForDay(DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                      )).length;
+                      return quantity > 0
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 2),
+                              decoration: const BoxDecoration(
+                                color: Colors.grey,
+                              ),
+                              child: Text(
+                                quantity.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            )
+                          : Container();
+                    }),
                 firstDay: DateTime(
                   DateTime.now().year,
                   DateTime.now().month - 12,
@@ -162,7 +232,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 rangeStartDay: _rangeStart,
                 rangeEndDay: _rangeEnd,
                 calendarFormat: _calendarFormat,
-                rangeSelectionMode: _rangeSelectionMode,
+                //rangeSelectionMode: _rangeSelectionMode,
                 eventLoader: (DateTime day) => _getTasksForDay(day),
                 startingDayOfWeek: StartingDayOfWeek.monday,
                 calendarStyle: const CalendarStyle(
@@ -170,17 +240,21 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 ),
                 onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
                   return _onDaySelected(
-                    selectedDay: selectedDay,
+                    selectedDay: DateTime(
+                      selectedDay.year,
+                      selectedDay.month,
+                      selectedDay.day,
+                    ),
                     focusedDay: focusedDay,
                   );
                 },
-                onRangeSelected:
-                    (DateTime? start, DateTime? end, DateTime focusedDay) =>
-                        _onRangeSelected(
-                  start: start,
-                  end: end,
-                  focusedDay: focusedDay,
-                ),
+                // onRangeSelected:
+                //     (DateTime? start, DateTime? end, DateTime focusedDay) =>
+                //         _onRangeSelected(
+                //   start: start,
+                //   end: end,
+                //   focusedDay: focusedDay,
+                // ),
                 onFormatChanged: (format) {
                   if (_calendarFormat != format) {
                     setState(() {
