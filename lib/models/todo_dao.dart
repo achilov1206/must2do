@@ -91,7 +91,6 @@ class TodoDao {
         columns: TodoFields.columns,
         orderBy: '${TodoFields.dateTime} DESC',
       );
-      await dbProvider.close();
       return result.map((e) => Todo.fromMap(e)).toList();
     } catch (e) {
       throw CustomError(
